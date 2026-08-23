@@ -60,15 +60,28 @@ class User(Base):
 class Referal(Base):
     """
     SQLAlchemy model for the referal table.
+
+    Each row represents a single stable referral code owned by ``user_id``
+    (the referrer). ``referred_user_id`` is populated when a new user signs
+    up using the code, linking the referred account back to the referrer.
+    The unique constraint on ``user_id`` guarantees exactly one code per
+    user, while ``referal_id`` is unique so codes can be looked up and
+    consumed by new signups.
     """
 
     __tablename__ = "referal"
+    __table_args__ = (
+        UniqueConstraint("user_id", name="uq_referal_user_id"),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("user.id"), index=True, nullable=False
     )
     referal_id = Column(String(16), nullable=False, unique=True, index=True)
+    referred_user_id = Column(
+        UUID(as_uuid=True), ForeignKey("user.id"), index=True, nullable=True
+    )
     created_at = Column(DateTime, nullable=False, default=func.now())
 
 

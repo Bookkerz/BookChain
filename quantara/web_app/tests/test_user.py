@@ -95,6 +95,58 @@ async def test_check_user(
 
 
 @pytest.mark.asyncio
+@patch("web_app.api.user.user_db.get_user_by_wallet_id")
+async def test_check_user_forwards_referral_code_on_signup(
+    mock_get_user_by_wallet_id: MagicMock, client: client
+) -> None:
+    """
+    Test that check_user forwards an optional referral_code to create_user
+    when the user does not exist yet (signup).
+    :param mock_get_user_by_wallet_id: unittest.mock.MagicMock
+    :param client: fastapi.testclient.TestClient
+    :return: None
+    """
+    mock_get_user_by_wallet_id.return_value = None
+
+    with patch("web_app.api.user.user_db.create_user") as mock_create_user:
+        response = client.get(
+            url="/api/check-user",
+            params={"wallet_id": "new_wallet", "referral_code": "ValidCode123"},
+        )
+
+    assert response.is_success
+    mock_create_user.assert_called_once_with(
+        "new_wallet", referral_code="ValidCode123"
+    )
+
+
+@pytest.mark.asyncio
+@patch("web_app.api.user.user_db.get_user_by_wallet_id")
+async def test_check_user_ignores_referral_code_for_existing_user(
+    mock_get_user_by_wallet_id: MagicMock, client: client
+) -> None:
+    """
+    Test that check_user does not touch create_user when the user already
+    exists, even when a referral_code is provided.
+    :param mock_get_user_by_wallet_id: unittest.mock.MagicMock
+    :param client: fastapi.testclient.TestClient
+    :return: None
+    """
+    mock_get_user_by_wallet_id.return_value = User(
+        wallet_id="existing_wallet", is_contract_deployed=True
+    )
+
+    with patch("web_app.api.user.user_db.create_user") as mock_create_user:
+        response = client.get(
+            url="/api/check-user",
+            params={"wallet_id": "existing_wallet", "referral_code": "ValidCode123"},
+        )
+
+    assert response.is_success
+    mock_create_user.assert_not_called()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "wallet_id, contract_address",
     [
