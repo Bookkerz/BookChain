@@ -2,12 +2,13 @@
 Unit tests for the UserDBConnector module.
 """
 
+import uuid
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from web_app.db.crud import UserDBConnector
-from web_app.db.models import User
+from web_app.db.crud import ReferalDBConnector, UserDBConnector
+from web_app.db.models import Referal, User
 
 
 @pytest.fixture
@@ -99,6 +100,80 @@ def test_create_user(user_db):
         user = user_db.create_user("wallet_123")
         assert user.wallet_id == "wallet_123"
         mock_write.assert_called_once()
+
+
+def test_create_user_with_referral_code_records_referred_user(user_db):
+    """
+    Test creating a user with a valid referral code links the new account
+    to the referrer's Referal row.
+    """
+    new_user_id = uuid.uuid4()
+    referrer_id = uuid.uuid4()
+    referal = Referal(
+        id=uuid.uuid4(), user_id=referrer_id, referal_id="ValidCode123456"
+    )
+
+    def assign_user_id(user):
+        """Simulate the DB flush assigning the user id."""
+        user.id = new_user_id
+
+    with (
+        patch.object(user_db, "write_to_db", side_effect=assign_user_id) as mock_write,
+        patch.object(ReferalDBConnector, "get_referal_by_code") as mock_get_code,
+        patch.object(ReferalDBConnector, "record_referral_use") as mock_record,
+    ):
+        mock_get_code.return_value = referal
+        user = user_db.create_user("wallet_123", referral_code="ValidCode123456")
+
+    assert user.wallet_id == "wallet_123"
+    mock_get_code.assert_called_once_with("ValidCode123456")
+    mock_record.assert_called_once_with(referal, new_user_id)
+    mock_write.assert_called_once()
+
+
+def test_create_user_with_unknown_referral_code_is_silent(user_db):
+    """
+    Test creating a user with an unknown referral code still succeeds and
+    records nothing.
+    """
+    with (
+        patch.object(user_db, "write_to_db") as mock_write,
+        patch.object(ReferalDBConnector, "get_referal_by_code") as mock_get_code,
+        patch.object(ReferalDBConnector, "record_referral_use") as mock_record,
+    ):
+        mock_get_code.return_value = None
+        user = user_db.create_user("wallet_123", referral_code="NoSuchCode")
+
+    assert user.wallet_id == "wallet_123"
+    mock_get_code.assert_called_once_with("NoSuchCode")
+    mock_record.assert_not_called()
+    mock_write.assert_called_once()
+
+
+def test_create_user_ignores_own_referral_code(user_db):
+    """
+    Test that a user cannot be recorded as referred by their own code.
+    """
+    new_user_id = uuid.uuid4()
+
+    def assign_user_id(user):
+        """Simulate the DB flush assigning the user id."""
+        user.id = new_user_id
+
+    with (
+        patch.object(user_db, "write_to_db", side_effect=assign_user_id) as mock_write,
+        patch.object(ReferalDBConnector, "get_referal_by_code") as mock_get_code,
+        patch.object(ReferalDBConnector, "record_referral_use") as mock_record,
+    ):
+        mock_get_code.return_value = Referal(
+            id=uuid.uuid4(), user_id=new_user_id, referal_id="SelfCode"
+        )
+        user = user_db.create_user("wallet_123", referral_code="SelfCode")
+
+    assert user.wallet_id == "wallet_123"
+    mock_get_code.assert_called_once_with("SelfCode")
+    mock_record.assert_not_called()
+    mock_write.assert_called_once()
 
 
 def test_update_user_contract(user_db):

@@ -10,10 +10,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from web_app.db.models import Base, Position, Status, TelegramUser, User
 
 from .base import DBConnector
+from .referal import ReferalDBConnector
 from web_app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 ModelType = TypeVar("ModelType", bound=Base)
+
+referal_db = ReferalDBConnector()
 
 
 class UserDBConnector(DBConnector):
@@ -63,14 +66,27 @@ class UserDBConnector(DBConnector):
         user = self.get_user_by_wallet_id(wallet_id)
         return user.contract_address if user else None
 
-    def create_user(self, wallet_id: str) -> User:
+    def create_user(self, wallet_id: str, referral_code: str | None = None) -> User:
         """
         Creates a new user in the database.
+
+        When a referral_code is provided and matches an existing referral
+        row, the new user is recorded as the referred user on that row so
+        the referral relationship is attributed at signup. Invalid codes are
+        ignored (the signup still succeeds).
+
         :param wallet_id: str
+        :param referral_code: str | None - optional code used at signup
         :return: User
         """
         user = User(wallet_id=wallet_id)
         self.write_to_db(user)
+
+        if referral_code:
+            referal = referal_db.get_referal_by_code(referral_code)
+            if referal and referal.user_id != user.id:
+                referal_db.record_referral_use(referal, user.id)
+
         return user
 
     def update_user_contract(self, user: User, contract_address: str) -> None:

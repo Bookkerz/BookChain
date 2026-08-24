@@ -6,7 +6,7 @@ import logging
 from decimal import Decimal
 
 import sentry_sdk
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Query, Request
 
 from web_app.api.serializers.transaction import UpdateUserContractRequest
 from web_app.api.serializers.user import (
@@ -103,13 +103,24 @@ async def get_user_contract(request: Request, wallet_id: str) -> str:
     response_description="Returns whether the user's contract is deployed.",
 )
 @limiter.limit(USER_DATA_LIMIT, key_func=lambda request: f"wallet:{request.query_params.get('wallet_id', request.client.host)}")
-async def check_user(request: Request, wallet_id: str) -> CheckUserResponse:
+async def check_user(
+    request: Request,
+    wallet_id: str,
+    referral_code: str | None = Query(
+        None,
+        description="Optional referral code used at signup. Recorded when the user is created.",
+    ),
+) -> CheckUserResponse:
     """
     This endpoint checks if the user exists, or adds the user to the database if they don't exist,
     and checks whether their contract is deployed.
 
+    When a new user is created and a referral_code is provided, the new
+    account is attributed to the referrer who owns that code.
+
     ### Parameters:
     - **wallet_id**: The wallet ID of the user.
+    - **referral_code**: Optional referral code used at signup.
 
     ### Returns:
     The contract deployment status
@@ -119,7 +130,7 @@ async def check_user(request: Request, wallet_id: str) -> CheckUserResponse:
     if user and not user.is_contract_deployed:
         return {"is_contract_deployed": False}
     elif not user:
-        user_db.create_user(wallet_id)
+        user_db.create_user(wallet_id, referral_code=referral_code)
         return {"is_contract_deployed": False}
     else:
         return {"is_contract_deployed": True}

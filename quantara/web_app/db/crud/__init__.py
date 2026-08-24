@@ -6,6 +6,7 @@ from .airdrop import *
 from .base import *
 from .deposit import *
 from .position import *
+from .referal import *
 from .telegram import *
 from .transaction import *
 from .user import *
