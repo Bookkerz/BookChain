@@ -32,7 +32,7 @@ aiohttp = "^3.10.10"
 psycopg2 = "^2.9.10" # Upgraded for Python 3.13 compatibility
 faker = "^30.8.1"
 notebook = "^7.2.2"
-sentry-sdk = { extras = ["fastapi"], version = "^2.18.0" }
+sentry-sdk = { extras = ["fastapi"], version = "^2.68.1" }
 slowapi = "^0.1.9"
 prometheus-client = "0.21.1"
 structlog = ">=24.1.0"
