@@ -39,7 +39,7 @@ jobs:
         working-directory: quantara/soroban/contracts/vault
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install latest Rust nightly
         uses: dtolnay/rust-toolchain@nightly
@@ -106,7 +106,7 @@ jobs:
         working-directory: quantara/soroban/contracts/looping
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install latest Rust nightly
         uses: dtolnay/rust-toolchain@nightly
@@ -173,7 +173,7 @@ jobs:
         working-directory: quantara/soroban/contracts/rewards
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install latest Rust nightly
         uses: dtolnay/rust-toolchain@nightly
