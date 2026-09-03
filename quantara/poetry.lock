@@ -3965,14 +3965,14 @@ test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,
 
 [[package]]
 name = "trio"
-version = "0.27.0"
+version = "0.34.0"
 description = "A friendly Python library for async concurrency and I/O"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "trio-0.27.0-py3-none-any.whl", hash = "sha256:68eabbcf8f457d925df62da780eff15ff5dc68fd6b367e2dde59f7aaf2a0b884"},
-    {file = "trio-0.27.0.tar.gz", hash = "sha256:1dcc95ab1726b2da054afea8fd761af74bad79bd52381b84eae408e983c76831"},
+    {file = "trio-0.34.0-py3-none-any.whl", hash = "sha256:6c7c9f49917694dcdcd5f67abd168df5599eca480d61f29854d17a61a75c2f05"},
+    {file = "trio-0.34.0.tar.gz", hash = "sha256:63b9485408bdfdde544fced107045a8c0086cdc4bd0ef2f797b9e0dd111b964b"},
 ]
 
 [package.dependencies]
@@ -4372,4 +4372,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.14"
-content-hash = "5114aaf3821ef069e05647979d7fb5bf16e13cb5a35552f5fe9721140918e8aa"
+content-hash = "17f7c9c585cf5ce883e20f5c9c8e7a63415f7552c38a9c59f10372cae3d0d9d8"
