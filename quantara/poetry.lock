@@ -3850,14 +3850,14 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.7
 
 [[package]]
 name = "stellar-sdk"
-version = "14.1.0"
+version = "16.0.0"
 description = "The Python Stellar SDK library provides APIs to build transactions and connect to Horizon and Stellar RPC server."
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "stellar_sdk-14.1.0-py3-none-any.whl", hash = "sha256:f7645554f6e941bf662436c63a9c47ad8b932a2cdb4fd2742eed11fc530d92d5"},
-    {file = "stellar_sdk-14.1.0.tar.gz", hash = "sha256:78d9be13ce4c487c35864ccda8a68793bbba1233ea15a6379e923cd11d21afbb"},
+    {file = "stellar_sdk-16.0.0-py3-none-any.whl", hash = "sha256:c478927869acdf65d7f9128dd6f903596a7cf418fc575166b5c40b1d5d9c34bc"},
+    {file = "stellar_sdk-16.0.0.tar.gz", hash = "sha256:18c41fca4e3c5fb86ff5479dc0315e7266a8db09f11185ed207a0d09c7ccc5f5"},
 ]
 
 [package.dependencies]
@@ -4372,4 +4372,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.14"
-content-hash = "5114aaf3821ef069e05647979d7fb5bf16e13cb5a35552f5fe9721140918e8aa"
+content-hash = "e7e5cd473f21e95a2b0b9f9afdacc29ff76c48d8531cb99f020ce861e6e56b99"
